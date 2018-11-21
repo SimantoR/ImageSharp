@@ -173,6 +173,8 @@ namespace SixLabors.ImageSharp.Processing.Processors.Quantization
             }
         }
 
+        internal TPixel[] AotGetPalette() => this.GetPalette();
+
         /// <inheritdoc/>
         protected override TPixel[] GetPalette()
         {
@@ -448,7 +450,7 @@ namespace SixLabors.ImageSharp.Processing.Processors.Quantization
                 {
                     Span<TPixel> row = source.GetPixelRowSpan(y);
                     Span<Rgba32> rgbaSpan = rgbaBuffer.GetSpan();
-                    PixelOperations<TPixel>.Instance.ToRgba32(row, rgbaSpan);
+                    PixelOperations<TPixel>.Instance.ToRgba32(source.Configuration, row, rgbaSpan);
                     ref Rgba32 scanBaseRef = ref MemoryMarshal.GetReference(rgbaSpan);
 
                     // And loop through each column

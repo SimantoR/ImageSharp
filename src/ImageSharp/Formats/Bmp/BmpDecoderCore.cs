@@ -207,7 +207,7 @@ namespace SixLabors.ImageSharp.Formats.Bmp
 
         /// <summary>
         /// Looks up color values and builds the image from de-compressed RLE8 data.
-        /// Compresssed RLE8 stream is uncompressed by <see cref="UncompressRle8(int, Span{byte})"/>
+        /// Compressed RLE8 stream is uncompressed by <see cref="UncompressRle8(int, Span{byte})"/>
         /// </summary>
         /// <typeparam name="TPixel">The pixel format.</typeparam>
         /// <param name="pixels">The <see cref="Buffer2D{TPixel}"/> to assign the palette to.</param>
@@ -310,9 +310,12 @@ namespace SixLabors.ImageSharp.Formats.Bmp
                 }
                 else
                 {
-                    for (int i = 0; i < cmd[0]; i++)
+                    int max = count + cmd[0]; // as we start at the current count in the following loop, max is count + cmd[0]
+                    byte cmd1 = cmd[1]; // store the value to avoid the repeated indexer access inside the loop
+
+                    for (; count < max; count++)
                     {
-                        buffer[count++] = cmd[1];
+                        buffer[count] = cmd1;
                     }
                 }
             }
@@ -436,7 +439,11 @@ namespace SixLabors.ImageSharp.Formats.Bmp
                     this.stream.Read(row);
                     int newY = Invert(y, height, inverted);
                     Span<TPixel> pixelSpan = pixels.GetRowSpan(newY);
-                    PixelOperations<TPixel>.Instance.FromBgr24Bytes(row.GetSpan(), pixelSpan, width);
+                    PixelOperations<TPixel>.Instance.FromBgr24Bytes(
+                        this.configuration,
+                        row.GetSpan(),
+                        pixelSpan,
+                        width);
                 }
             }
         }
@@ -461,7 +468,11 @@ namespace SixLabors.ImageSharp.Formats.Bmp
                     this.stream.Read(row);
                     int newY = Invert(y, height, inverted);
                     Span<TPixel> pixelSpan = pixels.GetRowSpan(newY);
-                    PixelOperations<TPixel>.Instance.FromBgra32Bytes(row.GetSpan(), pixelSpan, width);
+                    PixelOperations<TPixel>.Instance.FromBgra32Bytes(
+                        this.configuration,
+                        row.GetSpan(),
+                        pixelSpan,
+                        width);
                 }
             }
         }
